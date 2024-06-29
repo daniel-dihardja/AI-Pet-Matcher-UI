@@ -22,11 +22,12 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const emailContent = formData.get("emailContent");
 
-  const response = await fetch("http://localhost:8000/get_matching_pets/", {
+  const { GET_MATCHING_PETS_API_URL, API_KEY } = process.env;
+  const response = await fetch(GET_MATCHING_PETS_API_URL as string, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      x_api_key: "secret",
+      x_api_key: API_KEY as string,
     },
     body: JSON.stringify({ message: emailContent }),
   });

@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 
 type ActionData = {
   success: boolean;
-  result?: undefined;
   content?: undefined;
 };
 
@@ -40,7 +39,7 @@ export const action: ActionFunction = async ({ request }) => {
   const result = await response.json();
   const content = JSON.parse(result.result.content);
 
-  return json<ActionData>({ success: true, result: result.result, content });
+  return json<ActionData>({ success: true, content });
 };
 
 export default function PetMatch() {
@@ -66,6 +65,7 @@ export default function PetMatch() {
               size="md"
               minRows={10}
               onChange={(e) => setEmailContent(e.target.value)}
+              isRequired={true}
             />
           </div>
           <div className="flex justify-center">
@@ -78,6 +78,7 @@ export default function PetMatch() {
               }`}
               style={!isButtonEnabled ? { pointerEvents: "none" } : {}}
               disabled={!isButtonEnabled}
+              isLoading={fetcher.state === "submitting"}
             >
               <strong>Find Matching Pets</strong>
             </Button>

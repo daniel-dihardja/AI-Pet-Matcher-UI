@@ -19,27 +19,32 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  const emailContent = formData.get("emailContent");
+  try {
+    const formData = await request.formData();
+    const emailContent = formData.get("emailContent");
 
-  const { GET_MATCHING_PETS_API_URL, API_KEY } = process.env;
-  const response = await fetch(GET_MATCHING_PETS_API_URL as string, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      x_api_key: API_KEY as string,
-    },
-    body: JSON.stringify({ message: emailContent }),
-  });
+    const { GET_MATCHING_PETS_API_URL, API_KEY } = process.env;
+    const response = await fetch(GET_MATCHING_PETS_API_URL as string, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        x_api_key: API_KEY as string,
+      },
+      body: JSON.stringify({ message: emailContent }),
+    });
 
-  if (!response.ok) {
-    return json<ActionData>({ success: false }, { status: response.status });
+    if (!response.ok) {
+      return json<ActionData>({ success: false }, { status: response.status });
+    }
+
+    const data = await response.json();
+    const content = JSON.parse(data.result.content);
+
+    return json<ActionData>({ success: true, content });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return json<ActionData>({ success: false }, { status: 500 });
   }
-
-  const result = await response.json();
-  const content = JSON.parse(result.result.content);
-
-  return json<ActionData>({ success: true, content });
 };
 
 export default function PetMatch() {

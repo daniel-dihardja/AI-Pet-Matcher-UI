@@ -71,15 +71,15 @@ export default function PetMatch() {
           <div className="flex justify-center">
             <Button
               type="submit"
-              color="default"
-              variant="flat"
-              isLoading={fetcher.state === "submitting"}
-              className="px-16"
+              className={`px-16 bg-black text-white ${
+                !isButtonEnabled
+                  ? "opacity-30 cursor-not-allowed"
+                  : "hover:bg-gray-800"
+              }`}
+              style={!isButtonEnabled ? { pointerEvents: "none" } : {}}
               disabled={!isButtonEnabled}
             >
-              <strong>
-                {fetcher.state === "submitting" ? "Matching..." : "Match"}
-              </strong>
+              <strong>Find Matching Pets</strong>
             </Button>
           </div>
         </fetcher.Form>

@@ -8,9 +8,8 @@ type ActionData = {
   message?: string;
 };
 
-const { USERNAME, PASSWORD } = process.env;
-
 export const action: ActionFunction = async ({ request }) => {
+  const { USERNAME, PASSWORD } = process.env;
   const formData = new URLSearchParams(await request.text());
   const username = formData.get("username");
   const password = formData.get("password");

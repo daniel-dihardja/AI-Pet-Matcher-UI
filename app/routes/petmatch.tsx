@@ -3,6 +3,7 @@ import { ActionFunction, LoaderFunction, json } from "@remix-run/node";
 import { redirect, useFetcher } from "@remix-run/react";
 import { Header } from "../components/Header";
 import { isAuthenticated } from "~/utils/session.server";
+import { useEffect, useState } from "react";
 
 type ActionData = {
   success: boolean;
@@ -44,6 +45,12 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function PetMatch() {
   const fetcher = useFetcher();
+  const [emailContent, setEmailContent] = useState("");
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+
+  useEffect(() => {
+    setIsButtonEnabled(emailContent.trim() !== "");
+  }, [emailContent]);
 
   return (
     <>
@@ -58,6 +65,7 @@ export default function PetMatch() {
               fullWidth={true}
               size="md"
               minRows={10}
+              onChange={(e) => setEmailContent(e.target.value)}
             />
           </div>
           <div className="flex justify-center">
@@ -67,6 +75,7 @@ export default function PetMatch() {
               variant="flat"
               isLoading={fetcher.state === "submitting"}
               className="px-16"
+              disabled={!isButtonEnabled}
             >
               <strong>
                 {fetcher.state === "submitting" ? "Matching..." : "Match"}

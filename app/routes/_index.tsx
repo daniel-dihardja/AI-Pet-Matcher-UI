@@ -16,6 +16,8 @@ export default function Index() {
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
+    } else {
+      navigate("/petmatch");
     }
   }, [isAuthenticated, navigate]);
 

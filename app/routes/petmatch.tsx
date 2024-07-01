@@ -1,13 +1,18 @@
 import { Button, Textarea } from "@nextui-org/react";
 import { ActionFunction, LoaderFunction, json } from "@remix-run/node";
 import { redirect, useFetcher } from "@remix-run/react";
-import { Header } from "../components/Header";
-import { isAuthenticated } from "~/utils/session.server";
 import { useEffect, useState } from "react";
+import appCache from "~/utils/app-cache.server";
+import { isAuthenticated } from "~/utils/session.server";
+import { Header } from "../components/Header";
 
 type ActionData = {
   success: boolean;
-  content?: undefined;
+};
+
+type Matches = {
+  summary: string;
+  matches: Array<{ name: string; description: string }>;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -15,32 +20,27 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (!authenticated) {
     return redirect("/login");
   }
-  return null;
+  return json({});
 };
 
 export const action: ActionFunction = async ({ request }) => {
   try {
     const formData = await request.formData();
-    const emailContent = formData.get("emailContent");
+    const message = formData.get("emailContent");
+
+    appCache.flushAll();
 
     const { GET_MATCHING_PETS_API_URL, API_KEY } = process.env;
-    const response = await fetch(GET_MATCHING_PETS_API_URL as string, {
+    fetch(GET_MATCHING_PETS_API_URL as string, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-api-key": API_KEY as string,
       },
-      body: JSON.stringify({ message: emailContent }),
+      body: JSON.stringify({ message }),
     });
 
-    if (!response.ok) {
-      return json<ActionData>({ success: false }, { status: response.status });
-    }
-
-    const data = await response.json();
-    const content = JSON.parse(data.received_message.content);
-
-    return json<ActionData>({ success: true, content });
+    return json({ success: true });
   } catch (error) {
     console.error("Error fetching data:", error);
     return json<ActionData>({ success: false }, { status: 500 });
@@ -49,16 +49,48 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function PetMatch() {
   const fetcher = useFetcher();
-  const [emailContent, setEmailContent] = useState("");
+  const [message, setMessage] = useState("");
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(
+    null
+  );
+  const [matches, setMatches] = useState<Matches | null>(null);
 
   useEffect(() => {
-    setIsButtonEnabled(emailContent.trim() !== "");
-  }, [emailContent]);
+    setIsButtonEnabled(message.trim() !== "");
+  }, [message]);
+
+  useEffect(() => {
+    if (isPolling && !pollingInterval) {
+      const interval = setInterval(async () => {
+        const response = await fetch("/api/status");
+        const data = await response.json();
+        if (data.matches) {
+          clearInterval(interval);
+          setPollingInterval(null);
+          setIsPolling(false);
+          setMatches(data.matches);
+        }
+      }, 3000); // Poll every 5 seconds
+      setPollingInterval(interval);
+    }
+    return () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
+    };
+  }, [isPolling, pollingInterval]);
+
+  useEffect(() => {
+    if (fetcher.data?.success) {
+      setIsPolling(true);
+    }
+  }, [fetcher.data]);
 
   return (
     <>
-      <Header></Header>
+      <Header />
       <div className="container mx-auto px-6 max-w-[1024px] mt-2">
         <div className=" h-16"></div>
         <fetcher.Form method="post" className="grid grid-cols-1 gap-4">
@@ -69,7 +101,8 @@ export default function PetMatch() {
               fullWidth={true}
               size="md"
               minRows={10}
-              onChange={(e) => setEmailContent(e.target.value)}
+              onChange={(e) => setMessage(e.target.value)}
+              value={message} // Initialize with loader data and update with user input
               isRequired={true}
             />
           </div>
@@ -83,23 +116,23 @@ export default function PetMatch() {
               }`}
               style={!isButtonEnabled ? { pointerEvents: "none" } : {}}
               disabled={!isButtonEnabled}
-              isLoading={fetcher.state === "submitting"}
+              isLoading={isPolling}
             >
               <strong>Find Matching Pets</strong>
             </Button>
           </div>
         </fetcher.Form>
         <div className="grid grid-cols-1 gap-4 pt-6 px-8">
-          {fetcher.data?.success ? (
+          {matches ? (
             <div>
-              <p className="mb-8 text-sm">{fetcher.data.content.summary}</p>
+              <p className="mb-8 text-sm">{matches.summary}</p>
               <ul>
-                {fetcher.data.content.matches.map((match, index) => (
+                {matches.matches.map((pet, index) => (
                   <li key={index} className="mb-4">
                     <p className="text-xl">
-                      <strong>{match.name}</strong>
+                      <strong>{pet.name}</strong>
                     </p>
-                    <p className="text-sm">{match.description}</p>
+                    <p className="text-sm">{pet.description}</p>
                   </li>
                 ))}
               </ul>

@@ -28,7 +28,7 @@ export const action: ActionFunction = async ({ request }) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        x_api_key: API_KEY as string,
+        "x-api-key": API_KEY as string,
       },
       body: JSON.stringify({ message: emailContent }),
     });
@@ -38,7 +38,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     const data = await response.json();
-    const content = JSON.parse(data.result.content);
+    const content = JSON.parse(data.received_message.content);
 
     return json<ActionData>({ success: true, content });
   } catch (error) {

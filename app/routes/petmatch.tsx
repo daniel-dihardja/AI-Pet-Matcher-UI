@@ -72,7 +72,7 @@ export default function PetMatch() {
           setIsPolling(false);
           setMatches(data.matches);
         }
-      }, 3000); // Poll every 5 seconds
+      }, 3000);
       setPollingInterval(interval);
     }
     return () => {
@@ -102,7 +102,6 @@ export default function PetMatch() {
               size="md"
               minRows={10}
               onChange={(e) => setMessage(e.target.value)}
-              value={message} // Initialize with loader data and update with user input
               isRequired={true}
             />
           </div>

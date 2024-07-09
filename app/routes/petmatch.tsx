@@ -23,13 +23,9 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json({});
 };
 
-export const action: ActionFunction = async ({ request }) => {
-  try {
-    const formData = await request.formData();
-    const message = formData.get("emailContent");
-
+const queryPets = (message: string) => {
+  return new Promise((resolve, reject) => {
     appCache.flushAll();
-
     const { GET_MATCHING_PETS_API_URL, API_KEY } = process.env;
     fetch(GET_MATCHING_PETS_API_URL as string, {
       method: "POST",
@@ -38,8 +34,28 @@ export const action: ActionFunction = async ({ request }) => {
         "x-api-key": API_KEY as string,
       },
       body: JSON.stringify({ message }),
-    });
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        appCache.set("matches", data);
+        resolve(data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
 
+export const action: ActionFunction = async ({ request }) => {
+  try {
+    const formData = await request.formData();
+    const message = formData.get("emailContent");
+    queryPets(message as string);
     return json({ success: true });
   } catch (error) {
     console.error("Error fetching data:", error);

@@ -6,6 +6,7 @@ export const loader: LoaderFunction = async () => {
   if (data) {
     const body = JSON.parse(data.body);
     const matches = JSON.parse(body.response.content);
+    console.log("data: ", data);
     return json({ matches });
   }
   return json({ matches: null });

@@ -19,7 +19,7 @@ export function Header() {
   return (
     <Navbar isBordered>
       <NavbarBrand>
-        <p className="font-bold text-inherit">AI Pet Matcher</p>
+        <p className="font-bold text-inherit">AI Pet Search</p>
       </NavbarBrand>
 
       <NavbarContent as="div" justify="end">

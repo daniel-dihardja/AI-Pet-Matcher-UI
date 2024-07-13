@@ -1,4 +1,4 @@
-import { Button, Textarea } from "@nextui-org/react";
+import { Button, Textarea, Card, CardBody } from "@nextui-org/react";
 import { ActionFunction, LoaderFunction, json } from "@remix-run/node";
 import { redirect, useFetcher } from "@remix-run/react";
 import { useEffect, useState } from "react";
@@ -10,9 +10,16 @@ type ActionData = {
   success: boolean;
 };
 
+type PetDetail = {
+  name: string;
+  url: string;
+  image: string;
+  description: string;
+};
+
 type Matches = {
   summary: string;
-  matches: Array<{ name: string; description: string }>;
+  matches: Array<PetDetail>;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -83,6 +90,7 @@ export default function PetMatch() {
         const response = await fetch("/api/status");
         const data = await response.json();
         if (data.matches) {
+          console.log({ data });
           clearInterval(interval);
           setPollingInterval(null);
           setIsPolling(false);
@@ -141,16 +149,38 @@ export default function PetMatch() {
           {matches ? (
             <div>
               <p className="mb-8 text-sm">{matches.summary}</p>
-              <ul>
-                {matches.matches.map((pet, index) => (
-                  <li key={index} className="mb-4">
-                    <p className="text-xl">
-                      <strong>{pet.name}</strong>
-                    </p>
-                    <p className="text-sm">{pet.description}</p>
-                  </li>
-                ))}
-              </ul>
+
+              {matches.matches.map((pet, index) => (
+                <Card key={index} className="mb-4">
+                  <CardBody>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <img
+                          src={pet.image}
+                          alt={pet.name}
+                          className="h-64 rounded-md"
+                        />
+                      </div>
+                      <div className="flex flex-col justify-between">
+                        <h3>
+                          <strong>{pet.name}</strong>
+                        </h3>
+                        <p className="text-sm">{pet.description}</p>
+                        <p>
+                          <a
+                            className="text-blue-600 underline"
+                            href={pet.url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {pet.url}
+                          </a>
+                        </p>
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
+              ))}
             </div>
           ) : null}
         </div>

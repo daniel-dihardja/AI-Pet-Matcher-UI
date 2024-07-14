@@ -114,25 +114,33 @@ export default function PetMatch() {
 
   return (
     <>
-      <Header />
-      <div className="container mx-auto px-6 max-w-[1024px] mt-2">
-        <div className=" h-16"></div>
+      {/* <Header /> */}
+      <div className="container mx-auto px-6 max-w-[1024px] mt-8">
         <fetcher.Form method="post" className="grid grid-cols-1 gap-4">
+          <div className="flex justify-center">
+            <img src="/assets/owl-01.png" alt="owl" className=" h-64"></img>
+          </div>
+
+          <div className=" px-4">
+            <p></p>
+          </div>
           <div>
             <Textarea
+              id="petDescription"
               name="emailContent"
-              placeholder="Please copy the enquiry email here"
+              placeholder="Ich suche einen Hund, der mittelgroß, energiegeladen und kinderfreundlich ist. Ich wohne in einem Haus mit Garten und habe zwei Katzen."
               fullWidth={true}
-              size="md"
+              size="lg"
               minRows={10}
               onChange={(e) => setMessage(e.target.value)}
               isRequired={true}
             />
           </div>
+
           <div className="flex justify-center">
             <Button
               type="submit"
-              className={`px-16 bg-black text-white ${
+              className={`p-4 bg-black text-white ${
                 !isButtonEnabled
                   ? "opacity-30 cursor-not-allowed"
                   : "hover:bg-gray-800"
@@ -145,7 +153,7 @@ export default function PetMatch() {
             </Button>
           </div>
         </fetcher.Form>
-        <div className="grid grid-cols-1 gap-4 pt-6 px-8">
+        <div className="grid grid-cols-1 gap-4 mt-6">
           {matches ? (
             <div>
               <p className="mb-8 text-sm">{matches.summary}</p>
@@ -153,20 +161,20 @@ export default function PetMatch() {
               {matches.matches.map((pet, index) => (
                 <Card key={index} className="mb-4">
                   <CardBody>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4">
                       <div>
                         <img
                           src={pet.image}
                           alt={pet.name}
-                          className="h-64 rounded-md"
+                          className="xs:w-full md:h-64 rounded-md"
                         />
                       </div>
                       <div className="flex flex-col justify-between">
-                        <h3>
+                        <h3 className="py-3 md:py-0">
                           <strong>{pet.name}</strong>
                         </h3>
-                        <p className="text-sm">{pet.description}</p>
-                        <p>
+                        <p>{pet.description}</p>
+                        <p className=" pt-2">
                           <a
                             className="text-blue-600 underline"
                             href={pet.url}

@@ -72,7 +72,9 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function PetMatch() {
   const fetcher = useFetcher();
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(
+    "Ich suche einen Hund, der mittelgroß, energiegeladen und kinderfreundlich ist. Ich wohne in einem Haus mit Garten und habe zwei Katzen."
+  );
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(
@@ -128,12 +130,12 @@ export default function PetMatch() {
             <Textarea
               id="petDescription"
               name="emailContent"
-              placeholder="Ich suche einen Hund, der mittelgroß, energiegeladen und kinderfreundlich ist. Ich wohne in einem Haus mit Garten und habe zwei Katzen."
               fullWidth={true}
               size="lg"
               minRows={10}
               onChange={(e) => setMessage(e.target.value)}
               isRequired={true}
+              value={message}
             />
           </div>
 

@@ -1,4 +1,11 @@
-import { Button, Textarea, Card, CardBody } from "@nextui-org/react";
+import {
+  Button,
+  Textarea,
+  Card,
+  CardBody,
+  Link,
+  Avatar,
+} from "@nextui-org/react";
 import { ActionFunction, LoaderFunction, json } from "@remix-run/node";
 import { redirect, useFetcher } from "@remix-run/react";
 import { useEffect, useState } from "react";
@@ -72,9 +79,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function PetMatch() {
   const fetcher = useFetcher();
-  const [message, setMessage] = useState(
-    "Ich suche einen Hund, der mittelgroß, energiegeladen und kinderfreundlich ist. Ich wohne in einem Haus mit Garten und habe zwei Katzen."
-  );
+  const [message, setMessage] = useState("");
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(
@@ -110,6 +115,7 @@ export default function PetMatch() {
 
   useEffect(() => {
     if (fetcher.data?.success) {
+      setMatches(null);
       setIsPolling(true);
     }
   }, [fetcher.data]);
@@ -117,32 +123,34 @@ export default function PetMatch() {
   return (
     <>
       {/* <Header /> */}
-      <div className="container mx-auto px-6 max-w-[1024px] mt-8">
+      <div className="container mx-auto px-2 max-w-[1024px] mt-8">
         <fetcher.Form method="post" className="grid grid-cols-1 gap-4">
-          <div className="flex justify-center">
-            <img src="/assets/owl-01.png" alt="owl" className=" h-64"></img>
+          <div>
+            {/* <Avatar src="/assets/logo.webp" size="lg"></Avatar> */}
+            {/* <img
+              src="/assets/logo.webp"
+              alt="owl"
+              className=" h-32 border rounded-lg"
+            ></img> */}
           </div>
 
-          <div className=" px-4">
-            <p></p>
-          </div>
           <div>
             <Textarea
               id="petDescription"
               name="emailContent"
+              placeholder="Describe the pet you are looking for..."
               fullWidth={true}
               size="lg"
-              minRows={10}
+              minRows={3}
               onChange={(e) => setMessage(e.target.value)}
               isRequired={true}
-              value={message}
             />
           </div>
 
           <div className="flex justify-center">
             <Button
               type="submit"
-              className={`p-4 bg-black text-white ${
+              className={`w-full md:w-64 p-6 bg-black text-white ${
                 !isButtonEnabled
                   ? "opacity-30 cursor-not-allowed"
                   : "hover:bg-gray-800"
@@ -155,36 +163,36 @@ export default function PetMatch() {
             </Button>
           </div>
         </fetcher.Form>
-        <div className="grid grid-cols-1 gap-4 mt-6">
-          {matches ? (
-            <div>
-              <p className="mb-8 text-sm">{matches.summary}</p>
 
+        {matches ? (
+          <div>
+            {/* <p className="mt-8 text-large">{matches.summary}</p> */}
+            <div className="columns-1 md:columns-2 gap-4 mt-6">
               {matches.matches.map((pet, index) => (
                 <Card key={index} className="mb-4">
                   <CardBody>
-                    <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4">
+                    <div className="grid grid-cols-1">
                       <div>
                         <img
                           src={pet.image}
                           alt={pet.name}
-                          className="xs:w-full md:h-64 rounded-md"
+                          className="w-full rounded-md"
                         />
                       </div>
                       <div className="flex flex-col justify-between">
-                        <h3 className="py-3 md:py-0">
+                        <h3 className="py-3">
                           <strong>{pet.name}</strong>
                         </h3>
                         <p>{pet.description}</p>
                         <p className=" pt-2">
-                          <a
+                          <Link
                             className="text-blue-600 underline"
                             href={pet.url}
                             target="_blank"
                             rel="noreferrer"
                           >
                             {pet.url}
-                          </a>
+                          </Link>
                         </p>
                       </div>
                     </div>
@@ -192,8 +200,8 @@ export default function PetMatch() {
                 </Card>
               ))}
             </div>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </div>
     </>
   );

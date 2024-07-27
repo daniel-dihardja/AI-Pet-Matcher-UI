@@ -126,24 +126,29 @@ export default function PetMatch() {
       <div className="container mx-auto px-2 max-w-[1024px] mt-8">
         <fetcher.Form method="post" className="grid grid-cols-1 gap-4">
           <div>
-            {/* <Avatar src="/assets/logo.webp" size="lg"></Avatar> */}
-            {/* <img
-              src="/assets/logo.webp"
-              alt="owl"
-              className=" h-32 border rounded-lg"
-            ></img> */}
-          </div>
-
-          <div>
+            <style>
+              {`
+                #petDescription::placeholder {
+                color: #BCC0C6; /* Custom color between gray-300 and gray-400 */
+              }
+              `}
+            </style>
             <Textarea
+              label="Describe the Pet"
               id="petDescription"
               name="emailContent"
-              placeholder="Describe the pet you are looking for..."
+              placeholder="E.g., I'm looking for a friendly dog. Ideally, the dog should be playful, enjoy outdoor activities, and have the potential to learn tricks like fetching items."
               fullWidth={true}
               size="lg"
               minRows={3}
               onChange={(e) => setMessage(e.target.value)}
-              isRequired={true}
+              variant="flat"
+              description="Please provide a detailed description of the pet you are looking for."
+              classNames={{
+                label: "text-lg font-bold px-2",
+                input: "p-2",
+                description: "text-center text-gray-400 mt-2",
+              }}
             />
           </div>
 
